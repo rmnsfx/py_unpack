@@ -3,8 +3,12 @@ import csv
 import pandas as pd
 
 def intBitsToFloat(x1, x2):
+
+
    b = (x1 << 16) + x2
+
    s = struct.pack('>I', b)
+
    return struct.unpack('>f', s)[0]
 
 def intToSign(x):
@@ -26,29 +30,34 @@ Z_sign = []
 
 if __name__ == "__main__":
 
+    file_name_1 = '10_1_2018-05-14 17%3A00.csv'
+    file_name_2 = '10_2_2018-05-14 17%3A00.csv'
 
-    with open('9_1.csv', 'r') as f:
-        reader = csv.reader(f)
+    # file_name_1 = '9_1_2018-05-14 16%3A00.csv'
+    # file_name_2 = '9_2_2018-05-14 16%3A00.csv'
 
-        #for row in reader:
-            #print(row)
+    # with open(file_name_1 + '.csv', 'r') as f:
+    #     reader = csv.reader(f)
 
-    data = pd.read_csv("9_1.csv", sep=';')
-    data2 = pd.read_csv("9_2.csv", sep=';')
+    # for row in reader:
+    #     print(row)
+
+    data = pd.read_csv(file_name_1, sep=';')
+    data2 = pd.read_csv(file_name_2, sep=';')
 
     # Метка времени
-    datetime = data.iloc[:,0]
-    datetime2 = data2.iloc[:, 0]
+    datetime = data.iloc[:,0].fillna(method='ffill')
+    datetime2 = data2.iloc[:, 0].fillna(method='ffill')
 
     # Ускорение
-    A_X_1 = data.iloc[:,1]
-    A_X_2 = data.iloc[:,2]
+    A_X_1 = data.iloc[:,1].fillna(0).astype(int)
+    A_X_2 = data.iloc[:,2].fillna(0).astype(int)
 
-    A_Y_1 = data.iloc[:, 21]
-    A_Y_2 = data.iloc[:, 22]
+    A_Y_1 = data.iloc[:, 21].fillna(0).astype(int)
+    A_Y_2 = data.iloc[:, 22].fillna(0).astype(int)
 
-    A_Z_1 = data.iloc[:, 41]
-    A_Z_2 = data.iloc[:, 42]
+    A_Z_1 = data.iloc[:, 41].fillna(0).astype(int)
+    A_Z_2 = data.iloc[:, 42].fillna(0).astype(int)
 
     for A_X_1, A_X_2 in zip(A_X_1, A_X_2):
         A_X.append( intBitsToFloat(A_X_1,A_X_2) )
@@ -62,14 +71,14 @@ if __name__ == "__main__":
     a_z_df = pd.DataFrame(A_Z)
 
     # Скорость
-    V_X_1 = data.iloc[:, 61]
-    V_X_2 = data.iloc[:, 62]
+    V_X_1 = data.iloc[:, 61].fillna(0).astype(int)
+    V_X_2 = data.iloc[:, 62].fillna(0).astype(int)
 
-    V_Y_1 = data.iloc[:, 81]
-    V_Y_2 = data.iloc[:, 82]
+    V_Y_1 = data.iloc[:, 81].fillna(0).astype(int)
+    V_Y_2 = data.iloc[:, 82].fillna(0).astype(int)
 
-    V_Z_1 = data2.iloc[:, 1]
-    V_Z_2 = data2.iloc[:, 2]
+    V_Z_1 = data2.iloc[:, 1].fillna(0).astype(int)
+    V_Z_2 = data2.iloc[:, 2].fillna(0).astype(int)
 
     for V_X_1, V_X_2 in zip(V_X_1, V_X_2):
         V_X.append( intBitsToFloat(V_X_1,V_X_2) )
@@ -83,9 +92,9 @@ if __name__ == "__main__":
     v_z_df = pd.DataFrame(V_Z)
 
     # Углы
-    X = data2.iloc[:, 21]
-    Y = data2.iloc[:, 41]
-    Z = data2.iloc[:, 61]
+    X = data2.iloc[:, 21].fillna(0).astype(int)
+    Y = data2.iloc[:, 41].fillna(0).astype(int)
+    Z = data2.iloc[:, 61].fillna(0).astype(int)
 
     for value1 in X:
         X_sign.append( intToSign(value1) )
@@ -102,6 +111,7 @@ if __name__ == "__main__":
 
 
     # Сохраняем в CSV
+
     final_out =  pd.DataFrame()
 
     final_out['date'] = datetime
@@ -116,5 +126,5 @@ if __name__ == "__main__":
     final_out['Z'] = z_df
 
 
-    final_out.to_csv('output.csv', index=False, sep=';', decimal=',', header=False)
+    final_out.to_csv('out_' + file_name_1, index=False, sep=';', decimal=',', header=False)
 
