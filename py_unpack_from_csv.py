@@ -150,12 +150,12 @@ def convertCsv():
 
     except Exception:
         path = os.path.split(fileName_1)[0] + '_out'
-        print('dir exist' + path)
+        print('dir exist ' + path)
 
     finally:
         final_out.to_csv(path +'/'+ name, index=False, sep=';', decimal=',', header=False)
 
-        messagebox.showinfo("","Конвертирование завершено")
+        messagebox.showinfo('','Конвертирование завершено')
 
     basedir = os.path.dirname(fileName_1)
 
