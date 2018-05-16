@@ -1,6 +1,26 @@
 import struct
 import csv
+from tkinter import messagebox
+
 import pandas as pd
+from tkinter import *
+from tkinter.filedialog import *
+
+
+A_X = []
+A_Y = []
+A_Z = []
+V_X = []
+V_Y = []
+V_Z = []
+X_sign = []
+Y_sign = []
+Z_sign = []
+
+fileName_1 = ""
+fileName_2 = ""
+basedir = "C:/"
+
 
 def intBitsToFloat(x1, x2):
 
@@ -18,20 +38,10 @@ def intToSign(x):
     return x
 
 
-A_X = []
-A_Y = []
-A_Z = []
-V_X = []
-V_Y = []
-V_Z = []
-X_sign = []
-Y_sign = []
-Z_sign = []
+def convertCsv():
 
-if __name__ == "__main__":
-
-    file_name_1 = '10_1_2018-05-14 17%3A00.csv'
-    file_name_2 = '10_2_2018-05-14 17%3A00.csv'
+    # file_name_1 = '10_1_2018-05-14 17%3A00.csv'
+    # file_name_2 = '10_2_2018-05-14 17%3A00.csv'
 
     # file_name_1 = '9_1_2018-05-14 16%3A00.csv'
     # file_name_2 = '9_2_2018-05-14 16%3A00.csv'
@@ -42,8 +52,16 @@ if __name__ == "__main__":
     # for row in reader:
     #     print(row)
 
-    data = pd.read_csv(file_name_1, sep=';')
-    data2 = pd.read_csv(file_name_2, sep=';')
+    global basedir
+
+    f1 = open(fileName_1)
+    f2 = open(fileName_2)
+
+    data = pd.read_csv(f1, sep=';', encoding='cp1251')
+    data2 = pd.read_csv(f2, sep=';', encoding='cp1251')
+
+    f1.close()
+    f2.close()
 
     # Метка времени
     datetime = data.iloc[:,0].fillna(method='ffill')
@@ -125,6 +143,81 @@ if __name__ == "__main__":
     final_out['Y'] = y_df
     final_out['Z'] = z_df
 
+    name = os.path.split(fileName_1)[1]
 
-    final_out.to_csv('out_' + file_name_1, index=False, sep=';', decimal=',', header=False)
+    try:
+        path = os.makedirs(os.path.dirname(fileName_1) + '_out')
 
+    except Exception:
+        path = os.path.split(fileName_1)[0] + '_out'
+        print('dir exist' + path)
+
+    finally:
+        final_out.to_csv(path +'/'+ name, index=False, sep=';', decimal=',', header=False)
+
+        messagebox.showinfo("","Конвертирование завершено")
+
+    basedir = os.path.dirname(fileName_1)
+
+
+def _open1(event):
+
+    global fileName_1
+    global basedir
+
+    op = askopenfilename(initialdir=basedir,
+                         filetypes =(("CSV File", "*.csv"),("All Files","*.*")),
+                         title = "Выбор файла")
+    ent1.insert(END, op)
+
+    fileName_1 = op
+    # print('1')
+    # print(os.path.basename(op))
+
+def _open2(event):
+
+    global fileName_2
+
+    op2 = askopenfilename(initialdir=basedir,
+                         filetypes =(("CSV File", "*.csv"),("All Files","*.*")),
+                         title = "Выбор файла")
+    ent2.insert(END, op2)
+    # print('2')
+
+    fileName_2 = op2
+
+def _work(event):
+    convertCsv()
+    # messagebox.showinfo("GUI Python", name_entry.get() + " " + surname_entry.get())
+
+
+if __name__ == "__main__":
+
+    root = Tk()
+    root.geometry('480x150')
+
+    ent1 = Entry(root, width=50, bd=0)
+    button1 = Button(root, text='Открыть файл 1')
+
+    ent2 = Entry(root, width=50, bd=0)
+    button2 = Button(root, text='Открыть файл 2')
+
+    ent1.grid(row=0, column=0, padx=30)
+    button1.grid(row=0, column=1)
+
+    ent2.grid(row=1, column=0, padx=30)
+    button2.grid(row=1, column=1)
+
+    button1.bind("<ButtonRelease-1>", _open1)
+    button2.bind("<ButtonRelease-1>", _open2)
+
+
+
+
+    button3 = Button(root, text='Запуск', padx="30", pady="10")
+    button3.grid(row=2, column=0)
+    button3.bind("<ButtonRelease-1>", _work)
+
+
+
+    root.mainloop()
